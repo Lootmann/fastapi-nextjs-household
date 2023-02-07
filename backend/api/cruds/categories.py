@@ -4,11 +4,11 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.models.categories as category_model
-import api.schemas.categories as category_schema
+import api.schemas.categories as schema
 
 
 async def create_categories(
-    db: AsyncSession, category_create: category_schema.CategoryCreate
+    db: AsyncSession, category_create: schema.CategoryCreate
 ) -> category_model.Category:
     category = category_model.Category(**category_create.dict())
 
@@ -28,7 +28,9 @@ async def get_categories(db: AsyncSession) -> List[category_model.Category] | No
             )
         )
     )
-    return result.all()
+    return result.all()  # type: ignore
+
+
 async def get_category(db: AsyncSession, category_id: int) -> category_model.Category | None:
     result: Result = await db.execute(
         select(category_model.Category).filter(category_model.Category.id == category_id)
@@ -37,3 +39,13 @@ async def get_category(db: AsyncSession, category_id: int) -> category_model.Cat
     return category[0] if category is not None else None
 
 
+async def update_category(
+    db: AsyncSession, category_create: schema.CategoryCreate, updated: category_model.Category
+) -> category_model.Category:
+    updated.name = category_create.name
+    db.add(updated)
+    print(updated)
+
+    await db.commit()
+    await db.refresh(updated)
+    return updated
