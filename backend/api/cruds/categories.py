@@ -1,5 +1,10 @@
 from typing import List
-from sqlalchemy import select
+
+# from sqlalchemy import select
+# from sqlalchemy.sql import select
+# from sqlalchemy.sql.expression import select
+from sqlalchemy.future import select
+
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,22 +24,15 @@ async def create_categories(
     return category
 
 
-async def get_categories(db: AsyncSession) -> List[category_model.Category] | None:
+async def get_categories(db: AsyncSession) -> List[category_model.Category]:
     result: Result = await (
-        db.execute(
-            select(
-                category_model.Category.id,
-                category_model.Category.name,
-            )
-        )
+        db.execute(select(category_model.Category.id, category_model.Category.name))
     )
     return result.all()  # type: ignore
 
 
 async def get_category(db: AsyncSession, category_id: int) -> category_model.Category | None:
-    result: Result = await db.execute(
-        select(category_model.Category).filter(category_model.Category.id == category_id)
-    )
+    result: Result = await db.execute(select(category_model.Category).filter_by(id=category_id))
     category: category_model.Category | None = result.first()
     return category[0] if category is not None else None
 
@@ -44,7 +42,6 @@ async def update_category(
 ) -> category_model.Category:
     updated.name = category_create.name
     db.add(updated)
-    print(updated)
 
     await db.commit()
     await db.refresh(updated)
