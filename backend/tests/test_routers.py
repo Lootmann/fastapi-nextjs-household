@@ -67,3 +67,40 @@ async def test_create_and_read_one(client):
     resp = await client.get(f"/categories/123")
     resp_obj = resp.json()
     assert resp_obj is None
+
+
+@pytest.mark.asyncio
+async def test_update(client):
+    # create
+    category = {"name": "before"}
+
+    resp = await client.post(f"/categories", json=category)
+    data = resp.json()
+
+    # get all
+    resp = await client.get("/categories")
+    resp_obj = resp.json()
+    assert len(resp_obj) == 1
+
+    # get one
+    resp = await client.get("/categories/1")
+    resp_obj = resp.json()
+    assert resp_obj["id"] == data["id"]
+    assert resp_obj["name"] == data["name"]
+
+    # update
+    resp = await client.put("/categories/1", json={"name": "updated :^)"})
+    resp_obj = resp.json()
+    assert resp_obj["id"] == data["id"]
+    assert resp_obj["name"] != data["name"]
+    assert resp_obj["name"] == "updated :^)"
+
+
+@pytest.mark.asyncio
+async def test_update_not_found(client):
+    # updated to category with id=1 which doesn't exist
+    resp = await client.put("/categories/1", json={"name": "hoge"})
+
+    # NOTE: response should return 404? or {"msg": "Not Found :^)"} ? which is the best ?
+    # NOTE: GET /categories/1 return empty json... :thinking_face:
+    assert resp.status_code == starlette.status.HTTP_404_NOT_FOUND
