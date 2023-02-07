@@ -29,3 +29,11 @@ async def get_categories(db: AsyncSession) -> List[category_model.Category] | No
         )
     )
     return result.all()
+async def get_category(db: AsyncSession, category_id: int) -> category_model.Category | None:
+    result: Result = await db.execute(
+        select(category_model.Category).filter(category_model.Category.id == category_id)
+    )
+    category: category_model.Category | None = result.first()
+    return category[0] if category is not None else None
+
+
