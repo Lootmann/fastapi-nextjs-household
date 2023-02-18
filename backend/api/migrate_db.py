@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from api.models.categories import Base as category_base
 from api.models.households import Base as household_base
 
-DB_URL = "sqlite:///db.sqlite3"
+DB_URL = "sqlite:///dev.db"
 engine = create_engine(DB_URL, echo=True)
 
 

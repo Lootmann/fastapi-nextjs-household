@@ -1,5 +1,6 @@
 from typing import List
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from api.db import Base
 from api.models.households import Household

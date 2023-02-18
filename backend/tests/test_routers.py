@@ -1,7 +1,6 @@
 import pytest
 import starlette.status
 
-
 # noinspection PyUnresolvedReferences
 from tests.init_async_client import async_client as client
 
@@ -100,7 +99,4 @@ async def test_update(client):
 async def test_update_not_found(client):
     # updated to category with id=1 which doesn't exist
     resp = await client.put("/categories/1", json={"name": "hoge"})
-
-    # NOTE: response should return 404? or {"msg": "Not Found :^)"} ? which is the best ?
-    # NOTE: GET /categories/1 return empty json... :thinking_face:
     assert resp.status_code == starlette.status.HTTP_404_NOT_FOUND

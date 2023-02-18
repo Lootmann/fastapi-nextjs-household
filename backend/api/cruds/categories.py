@@ -1,12 +1,8 @@
 from typing import List
 
-# from sqlalchemy import select
-# from sqlalchemy.sql import select
-# from sqlalchemy.sql.expression import select
-from sqlalchemy.future import select
-
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 import api.models.categories as category_model
 import api.schemas.categories as schema
