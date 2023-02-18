@@ -2,12 +2,14 @@
 
 FastAPI 認証付き 家計簿 🏠
 
+*全編AsyncSession*
+
 
 ## Models
 
 ```python
 class User:
-   name: str
+   username: str
    email: str
    password: str
 
@@ -22,3 +24,17 @@ class Household:
    category: Category
    user: User
 ```
+
+
+## Endpoint
+
+- auths
+  - [ ] POST /login
+  - [ ] POST /token
+
+- categories
+  - [ ] GET /categories
+  - [ ] POST /categories
+  - [ ] GET /categories/:category_id
+  - [ ] PATCH /categories/:category_id
+  - [ ] DEL /categories/:category_id

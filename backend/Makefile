@@ -4,10 +4,13 @@ run:
 	$(OPTION) python3 -m uvicorn api.main:app --reload
 
 test:
-	$(OPTION) python3 -m pytest -v
+	$(OPTION) python3 -m pytest -svv
 
 cov:
 	$(OPTION) python3 -m pytest --cov --cov-report=html
+
+measure:
+	$(OPTION) python3 -m pytest --durations=0
 
 profile:
 	$(OPTION) python3 -m pytest --profile-svg
