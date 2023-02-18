@@ -11,7 +11,7 @@ ASYNC_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 @pytest_asyncio.fixture
 async def async_client() -> AsyncClient:
-    async_engine = create_async_engine(ASYNC_DB_URL, echo=True)
+    async_engine = create_async_engine(ASYNC_DB_URL, echo=False)
     async_session = sessionmaker(
         bind=async_engine,
         class_=AsyncSession,
