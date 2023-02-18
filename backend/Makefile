@@ -1,14 +1,25 @@
+OPTION = PYTHONDONTWRITEBYTECODE=1
+
 run:
-	python3 -m uvicorn api.main:app --reload
+	$(OPTION) python3 -m uvicorn api.main:app --reload
 
 test:
-	python3 -m pytest -v
+	$(OPTION) python3 -m pytest -v
+
+cov:
+	$(OPTION) python3 -m pytest --cov --cov-report=html
+
+profile:
+	$(OPTION) python3 -m pytest --profile-svg
 
 migrate:
-	python3 -m api.migrate_db
+	$(OPTION) python3 -m api.migrate_db
 
 docs:
 	google-chrome http://127.0.0.1:8000/docs
 
 req:
 	pip freeze > requirements.txt
+
+pre:
+	pre-commit run --all-files
