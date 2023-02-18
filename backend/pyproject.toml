@@ -29,8 +29,8 @@ python_files = ["test_*.py"]
 python_classes = ["Test"]
 python_functions = ["test"]
 
+[tool.coverage.run]
+omit = ["tests/*", "venv"]
+
 [tool.mypy.overrides]
-module = [
-    "sqlalchemy.*",
-    "uvicorn.*",
-]
+module = ["sqlalchemy.*", "uvicorn.*"]
