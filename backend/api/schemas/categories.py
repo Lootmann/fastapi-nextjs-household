@@ -5,6 +5,9 @@ class CategoryBase(BaseModel):
     # ... means Required Field
     name: str = Field(..., example="category name")
 
+    class Config:
+        orm_mode = True
+
 
 class CategoryCreate(CategoryBase):
     pass
@@ -19,6 +22,3 @@ class CategoryCreateResponse(CategoryCreate):
 
 class Category(CategoryBase):
     id: int
-
-    class Config:
-        orm_mode = True
