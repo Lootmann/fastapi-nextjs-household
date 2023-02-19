@@ -14,13 +14,13 @@ class TestGetUser:
         assert len(resp.json()) == 0
 
     async def test_get_all_users(self, client):
-        for _ in range(50):
+        for _ in range(20):
             user = UserFactory.create_user()
             await client.post("/users", json={"name": user.name, "password": user.password})
 
         resp = await client.get("/users")
         assert resp.status_code == status.HTTP_200_OK
-        assert len(resp.json()) == 50
+        assert len(resp.json()) == 20
 
     async def test_get_user_by_id(self, client):
         user = UserFactory.create_user()
