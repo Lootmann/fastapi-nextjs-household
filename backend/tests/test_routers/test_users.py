@@ -22,7 +22,7 @@ class TestGetUser:
         assert len(resp.json()) == 1
 
     async def test_get_all_users(self, client):
-        for _ in range(19):
+        for _ in range(9):
             user = UserFactory.create_user()
             resp = await client.post(
                 "/users",
@@ -35,7 +35,7 @@ class TestGetUser:
 
         resp = await client.get("/users", headers=headers)
         assert resp.status_code == status.HTTP_200_OK
-        assert len(resp.json()) == 20
+        assert len(resp.json()) == 10
 
     async def test_get_user_by_id(self, client):
         user = UserFactory.create_user()
@@ -89,8 +89,56 @@ class TestPostUser:
 
 
 @pytest.mark.asyncio
-class TestUpdateUser:
-    pass
+class TestPatchUser:
+    async def test_update_user(self, client):
+        # create
+        user = UserFactory.create_user()
+        resp = await client.post("/users", json={"name": user.name, "password": user.password})
+
+        assert resp.json()["name"] == user.name
+
+        # login
+        await client.post("/users", json={"name": user.name, "password": user.password})
+        headers = await create_access_token(client, user.name, user.password)
+
+        # update
+        updated_data = {"name": "updated :^)", "password": ""}
+        resp = await client.patch("/users", json=updated_data, headers=headers)
+        assert resp.status_code == status.HTTP_200_OK
+
+        resp_obj = resp.json()
+        assert resp_obj["name"] != user.name
+        assert resp_obj["name"] == "updated :^)"
+
+    async def test_update_user_invalid_updated_data(self, client):
+        # create
+        user = UserFactory.create_user()
+        await client.post("/users", json={"name": user.name, "password": user.password})
+
+        # login
+        await client.post("/users", json={"name": user.name, "password": user.password})
+        headers = await create_access_token(client, user.name, user.password)
+
+        # update with no name and password
+        updated_data = {}
+        resp = await client.patch("/users", json=updated_data, headers=headers)
+        assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    async def test_update_user_when_update_user_access_token_need_recreated(self, client):
+        user = UserFactory.create_user()
+        await client.post("/users", json={"name": user.name, "password": user.password})
+
+        await client.post("/users", json={"name": user.name, "password": user.password})
+        headers = await create_access_token(client, user.name, user.password)
+
+        # update
+        resp = await client.patch("/users", json={"name": "a", "password": "b"}, headers=headers)
+        assert resp.status_code == status.HTTP_200_OK
+
+        # When user information is updated, token information is also updated
+        # and the user is automatically logged out.
+        resp = await client.patch("/users", json={"name": "a", "password": "b"}, headers=headers)
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.asyncio

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
@@ -8,8 +8,12 @@ class UserBase(BaseModel):
         orm_mode = True
 
 
-class UserUpdate(UserBase):
-    pass
+class UserUpdate(BaseModel):
+    name: str = Field("")
+    password: str = Field("")
+
+    class Config:
+        orm_mode = True
 
 
 class UserCreate(UserBase):

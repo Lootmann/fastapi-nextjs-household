@@ -47,17 +47,14 @@ async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
     "/users", response_model=user_schema.UserCreateResponse, status_code=status.HTTP_200_OK
 )
 async def update_user(
-    user_body: user_schema.UserCreate,
+    user_body: user_schema.UserUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: user_model.User = Depends(auth_api.get_current_active_user),
 ):
-    user: user_model.User = user_api.find_by_id(db, current_user.id)
-
-    if not user:
+    if user_body.name == "" and user_body.password == "":
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detial=f"User: {current_user.id} Not Found"
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Request body is invalid"
         )
-
     return await user_api.update_user(db, current_user, user_body)
 
 
