@@ -45,5 +45,7 @@ async def update_user(
     pass
 
 
-async def delete_user(db: AsyncSession, user_id: int) -> user_model.User:
-    pass
+async def delete_user(db: AsyncSession, user: user_schema.User) -> None:
+    await db.delete(user)
+    await db.commit()
+    return

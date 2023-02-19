@@ -2,23 +2,38 @@ import pytest
 from fastapi import status
 
 from api.schemas import users as user_schema
-from tests.factories import UserFactory
+from tests.factories import UserFactory, create_access_token
 from tests.init_async_client import async_client as client
 
 
 @pytest.mark.asyncio
 class TestGetUser:
-    async def test_get_all_users_when_no_users(self, client):
+    async def test_get_all_when_not_loggin(self, client):
         resp = await client.get("/users")
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+    async def test_get_all_users_when_no_users(self, client):
+        user = UserFactory.create_user()
+        await client.post("/users", json={"name": user.name, "password": user.password})
+        headers = await create_access_token(client, user.name, user.password)
+
+        resp = await client.get("/users", headers=headers)
         assert resp.status_code == status.HTTP_200_OK
-        assert len(resp.json()) == 0
+        assert len(resp.json()) == 1
 
     async def test_get_all_users(self, client):
-        for _ in range(20):
+        for _ in range(19):
             user = UserFactory.create_user()
-            await client.post("/users", json={"name": user.name, "password": user.password})
+            resp = await client.post(
+                "/users",
+                json={"name": user.name, "password": user.password},
+            )
 
-        resp = await client.get("/users")
+        user = UserFactory.create_user()
+        await client.post("/users", json={"name": user.name, "password": user.password})
+        headers = await create_access_token(client, user.name, user.password)
+
+        resp = await client.get("/users", headers=headers)
         assert resp.status_code == status.HTTP_200_OK
         assert len(resp.json()) == 20
 
@@ -71,3 +86,25 @@ class TestPostUser:
 
         resp = await client.post("/users", json={"password": "magege"})
         assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+@pytest.mark.asyncio
+class TestUpdateUser:
+    pass
+
+
+@pytest.mark.asyncio
+class TestDeleteUser:
+    async def test_delete_user(self, client):
+        # create
+        user = UserFactory.create_user()
+        resp = await client.post("/users", json={"name": user.name, "password": user.password})
+        assert resp.status_code == status.HTTP_201_CREATED
+
+        # login
+        await client.post("/users", json={"name": user.name, "password": user.password})
+        headers = await create_access_token(client, user.name, user.password)
+
+        # delete
+        resp = await client.delete("/users", headers=headers)
+        assert resp.status_code == status.HTTP_200_OK

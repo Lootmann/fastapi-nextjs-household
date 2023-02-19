@@ -57,6 +57,7 @@ async def get_current_user(
 
 
 async def get_current_active_user(current_user: user_schema.User = Depends(get_current_user)):
+    # TODO: definition active user
     return current_user
 
 
