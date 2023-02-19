@@ -30,6 +30,7 @@ python_classes = ["Test"]
 python_functions = ["test"]
 
 [tool.coverage.run]
+concurrency = ["multiprocessing", "greenlet", "thread"]
 omit = ["tests/*", "venv"]
 
 [tool.mypy.overrides]
