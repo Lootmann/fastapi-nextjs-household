@@ -24,3 +24,4 @@ class UserCreateResponse(UserBase):
 
 class User(UserBase):
     id: int
+    password: str
