@@ -4,12 +4,14 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+from api.cruds import auths as auth_api
 from api.models import users as user_model
 from api.schemas import users as user_schema
 
 
 async def create_user(db: AsyncSession, user_create: user_schema.UserCreate) -> user_model.User:
     user = user_model.User(**user_create.dict())
+    user.password = await auth_api.get_hashed_password(user.password)
 
     db.add(user)
     await db.commit()
