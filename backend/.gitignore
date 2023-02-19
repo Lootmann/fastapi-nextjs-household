@@ -257,6 +257,9 @@ poetry.toml
 
 # ruff
 .ruff_cache/
+
+# my stuff
 *.db
+prof/*
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all

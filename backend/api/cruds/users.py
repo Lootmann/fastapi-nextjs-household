@@ -40,10 +40,21 @@ async def find_by_name(db: AsyncSession, username: str) -> user_model.User:
 
 
 async def update_user(
-    db: AsyncSession, current_user: user_schema.User, updated_user: user_schema.UserCreate
+    db: AsyncSession, current_user: user_model.User, updated_user: user_schema.UserCreate
 ) -> user_model.User:
-    pass
+    if updated_user.name != "":
+        current_user.name = updated_user.name
+
+    if updated_user.password != "":
+        current_user.password = await auth_api.get_hashed_password(updated_user.password)
+
+    db.add(current_user)
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
 
 
-async def delete_user(db: AsyncSession, user_id: int) -> user_model.User:
-    pass
+async def delete_user(db: AsyncSession, user: user_model.User) -> None:
+    await db.delete(user)
+    await db.commit()
+    return

@@ -14,4 +14,4 @@ class Category(Base):
     households: Mapped[List["Household"]] = relationship("Household", back_populates="category")
 
     def __repr__(self) -> str:
-        return f"<Category ({self.id},{self.name})>"
+        return f"<Category ({self.id}, {self.name})>"

@@ -11,4 +11,4 @@ class User(Base):
     password: Mapped[str]
 
     def __repr__(self) -> str:
-        return f"<User ({self.id},{self.name})>"
+        return f"<User ({self.id}, {self.name})>"

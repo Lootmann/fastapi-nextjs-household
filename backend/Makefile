@@ -10,7 +10,7 @@ cov:
 	$(OPTION) python3 -m pytest --cov --cov-report=html
 
 measure:
-	$(OPTION) python3 -m pytest --durations=0
+	$(OPTION) python3 -m pytest --durations=0 -vv
 
 profile:
 	$(OPTION) python3 -m pytest --profile-svg

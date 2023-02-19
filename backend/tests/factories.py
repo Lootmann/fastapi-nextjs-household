@@ -1,10 +1,5 @@
-"""factories.py
-test util factory
-"""
 from random import choice, randint
 from string import ascii_letters
-
-import pytest
 
 from api.schemas import users as user_schema
 
@@ -15,11 +10,12 @@ def random_string(min_: int = 5, max_: int = 20) -> str:
 
 async def create_access_token(client, username: str, password: str):
     resp = await client.post(
-        "/auth/login",
+        "/token",
         data={"username": username, "password": password},
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
-    return resp.json()
+    access_token = resp.json()["access_token"]
+    return {"Authorization": f"Bearer {access_token}"}
 
 
 class UserFactory:

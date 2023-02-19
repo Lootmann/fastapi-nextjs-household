@@ -16,7 +16,7 @@ class TestCreateToken:
 
         # login
         resp = await client.post(
-            "/auth/login",
+            "/token",
             data={"username": user.name, "password": user.password},
             headers={"content-type": "application/x-www-form-urlencoded"},
         )
@@ -35,7 +35,7 @@ class TestLogin:
 
         # login by wrong name
         resp = await client.post(
-            "/auth/login",
+            "/token",
             data={"username": user.name, "password": "moge"},
             headers={"content-type": "application/x-www-form-urlencoded"},
         )
@@ -43,7 +43,7 @@ class TestLogin:
 
         # login by wrong password
         resp = await client.post(
-            "/auth/login",
+            "/token",
             data={"username": "hogehoge", "password": user.password},
             headers={"content-type": "application/x-www-form-urlencoded"},
         )
@@ -51,7 +51,7 @@ class TestLogin:
 
         # login by wrong both
         resp = await client.post(
-            "/auth/login",
+            "/token",
             data={"username": "hogehoge", "password": "mogera"},
             headers={"content-type": "application/x-www-form-urlencoded"},
         )
