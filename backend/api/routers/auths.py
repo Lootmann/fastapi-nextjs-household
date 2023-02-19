@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import List
 
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
@@ -7,7 +6,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.cruds import auths as auth_api
-from api.cruds import users as user_api
 from api.db import get_db
 from api.schemas import auths as auth_schema
 from api.schemas import users as user_schema
@@ -17,7 +15,7 @@ credential = Settings()
 router = APIRouter()
 
 
-@router.post("/login", response_model=auth_schema.TokenData, status_code=status.HTTP_200_OK)
+@router.post("/auth/login", response_model=auth_schema.TokenData, status_code=status.HTTP_200_OK)
 async def login_user(
     db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
