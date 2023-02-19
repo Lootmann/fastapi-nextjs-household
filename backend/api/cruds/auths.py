@@ -44,11 +44,11 @@ async def get_current_user(
         if username is None:
             raise credential_exception
 
-        token_data = auth_schema.TokenData(username=username)
+        token = auth_schema.Token(username=username)
     except JWTError:
         raise credential_exception
 
-    user = await user_api.find_user_by_name(db, token_data.username)
+    user = await user_api.find_by_name(db, token.username)
 
     if user is None:
         raise credential_exception
