@@ -10,7 +10,7 @@ def random_string(min_: int = 5, max_: int = 20) -> str:
 
 async def create_access_token(client, username: str, password: str):
     resp = await client.post(
-        "/auth/login",
+        "/token",
         data={"username": username, "password": password},
         headers={"content-type": "application/x-www-form-urlencoded"},
     )

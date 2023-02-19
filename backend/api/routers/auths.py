@@ -15,7 +15,7 @@ credential = Settings()
 router = APIRouter()
 
 
-@router.post("/auth/login", response_model=auth_schema.TokenData, status_code=status.HTTP_200_OK)
+@router.post("/token", response_model=auth_schema.TokenData, status_code=status.HTTP_200_OK)
 async def login_user(
     db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):

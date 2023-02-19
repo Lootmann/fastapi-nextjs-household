@@ -10,7 +10,6 @@ from api.cruds import users as user_api
 from api.db import get_db
 from api.models import users as user_model
 from api.schemas import auths as auth_schema
-from api.schemas import users as user_schema
 from api.settings import Settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
