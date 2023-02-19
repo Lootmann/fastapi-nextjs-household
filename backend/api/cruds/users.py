@@ -40,12 +40,12 @@ async def find_by_name(db: AsyncSession, username: str) -> user_model.User:
 
 
 async def update_user(
-    db: AsyncSession, current_user: user_schema.User, updated_user: user_schema.UserCreate
+    db: AsyncSession, current_user: user_model.User, updated_user: user_schema.UserCreate
 ) -> user_model.User:
     pass
 
 
-async def delete_user(db: AsyncSession, user: user_schema.User) -> None:
+async def delete_user(db: AsyncSession, user: user_model.User) -> None:
     await db.delete(user)
     await db.commit()
     return

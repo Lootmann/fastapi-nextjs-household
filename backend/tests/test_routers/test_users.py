@@ -108,3 +108,8 @@ class TestDeleteUser:
         # delete
         resp = await client.delete("/users", headers=headers)
         assert resp.status_code == status.HTTP_200_OK
+
+    async def test_delete_user_with_not_logging(self, client):
+        # delete
+        resp = await client.delete("/users")
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED

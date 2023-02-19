@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.cruds import auths as auth_api
 from api.cruds import users as user_api
 from api.db import get_db
+from api.models import users as user_model
 from api.schemas import users as user_schema
 
 router = APIRouter()
@@ -45,14 +46,24 @@ async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
 @router.patch(
     "/users", response_model=user_schema.UserCreateResponse, status_code=status.HTTP_200_OK
 )
-async def update_user(user_body: user_schema.UserCreate, db: AsyncSession = Depends(get_db)):
-    # TODO: get current user
-    pass
+async def update_user(
+    user_body: user_schema.UserCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: user_model.User = Depends(auth_api.get_current_active_user),
+):
+    user: user_model.User = user_api.find_by_id(db, current_user.id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detial=f"User: {current_user.id} Not Found"
+        )
+
+    return await user_api.update_user(db, current_user, user_body)
 
 
 @router.delete("/users", response_model=None, status_code=status.HTTP_200_OK)
 async def delete_user(
     db: AsyncSession = Depends(get_db),
-    current_user: user_schema.User = Depends(auth_api.get_current_active_user),
+    current_user: user_model.User = Depends(auth_api.get_current_active_user),
 ):
     return await user_api.delete_user(db, current_user)
