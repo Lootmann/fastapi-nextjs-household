@@ -1,13 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
-from api.schemas.categories import Category
+from pydantic import BaseModel
 
 
 class HouseholdBase(BaseModel):
     amount: int
-    category: Category = Field(None, alias="Category")
+    category_id: int
     registered_at: datetime
 
     class Config:
@@ -24,3 +22,4 @@ class HouseholdCreateResponse(HouseholdCreate):
 
 class Household(HouseholdBase):
     id: int
+    user_id: int
