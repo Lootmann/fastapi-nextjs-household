@@ -10,9 +10,10 @@ from api.schemas import categories as category_schema
 
 
 async def create_categories(
-    db: AsyncSession, category_create: category_schema.CategoryCreate
+    db: AsyncSession, category_create: category_schema.CategoryCreate, user_id: int
 ) -> category_model.Category:
     category = category_model.Category(**category_create.dict())
+    category.user_id = user_id
 
     db.add(category)
     await db.commit()
@@ -23,7 +24,13 @@ async def create_categories(
 
 async def get_categories(db: AsyncSession) -> List[category_model.Category]:
     result: Result = await (
-        db.execute(select(category_model.Category.id, category_model.Category.name))
+        db.execute(
+            select(
+                category_model.Category.id,
+                category_model.Category.name,
+                category_model.Category.user_id,
+            )
+        )
     )
     return result.all()  # type: ignore
 

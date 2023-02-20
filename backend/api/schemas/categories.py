@@ -13,12 +13,11 @@ class CategoryCreate(CategoryBase):
     pass
 
 
-class CategoryCreateResponse(CategoryCreate):
+class CategoryCreateResponse(CategoryBase):
     id: int
-
-    class Config:
-        orm_mode = True
+    user_id: int
 
 
 class Category(CategoryBase):
     id: int
+    user_id: int
