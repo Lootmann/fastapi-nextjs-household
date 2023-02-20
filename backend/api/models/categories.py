@@ -1,5 +1,6 @@
 from typing import List
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from api.db import Base
@@ -11,7 +12,12 @@ class Category(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    households: Mapped[List["Household"]] = relationship("Household", back_populates="category")
+
+    # Household
+    households: Mapped[List["Household"]] = relationship("Household", backref="category")
+
+    # User
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     def __repr__(self) -> str:
         return f"<Category ({self.id}, {self.name})>"
