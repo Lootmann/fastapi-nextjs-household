@@ -1,17 +1,15 @@
 import pytest
 from fastapi import status
 
-from api.models import users as user_model
 from api.schemas import categories as category_schema
-from tests.factories import create_access_token, random_string
+from tests.factories import UserFactory, create_access_token, random_string
 from tests.init_async_client import async_client as client
 
 
 @pytest.mark.asyncio
 class TestGetCategory:
-    async def test_get_all_categories(self, client, user_fixture):
-        user = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_get_all_categories(self, client, login_fixture):
+        user, headers = await login_fixture
 
         # create
         for _ in range(10):
@@ -28,9 +26,8 @@ class TestGetCategory:
         resp_obj = resp.json()
         assert len(resp_obj) == 10
 
-    async def test_get_category(self, client, user_fixture):
-        user = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_get_category(self, client, login_fixture):
+        user, headers = await login_fixture
 
         categories = []
 
@@ -47,9 +44,8 @@ class TestGetCategory:
             assert category.id == categories[i].id
             assert category.name == categories[i].name
 
-    async def test_get_category_which_doesnt_exist(self, client, user_fixture):
-        user = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_get_category_which_doesnt_exist(self, client, login_fixture):
+        _, headers = await login_fixture
 
         resp = await client.get("/categories/123", headers=headers)
         assert resp.status_code == status.HTTP_404_NOT_FOUND
@@ -58,16 +54,14 @@ class TestGetCategory:
 
 @pytest.mark.asyncio
 class TestCreateCategory:
-    async def test_post_category(self, client, user_fixture):
-        user: user_model.User = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_post_category(self, client, login_fixture):
+        _, headers = await login_fixture
 
         resp = await client.post("/categories", json={"name": random_string()}, headers=headers)
         assert resp.status_code == status.HTTP_201_CREATED
 
-    async def test_post_category_which_has_wrong_json_field(self, client, user_fixture):
-        user: user_model.User = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_post_category_which_has_wrong_json_field(self, client, login_fixture):
+        _, headers = await login_fixture
 
         resp = await client.post("/categories", json={"my_user_name": "hoge"}, headers=headers)
         assert resp.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -75,9 +69,8 @@ class TestCreateCategory:
 
 @pytest.mark.asyncio
 class TestUpdateCategory:
-    async def test_put_category(self, client, user_fixture):
-        user: user_model.User = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_put_category(self, client, login_fixture):
+        _, headers = await login_fixture
 
         # create
         resp = await client.post(f"/categories", json={"name": "before"}, headers=headers)
@@ -88,25 +81,45 @@ class TestUpdateCategory:
         resp = await client.patch(
             f"/categories/{created_id}", json={"name": "updated :^)"}, headers=headers
         )
+        assert resp.status_code == status.HTTP_200_OK
+
         updated_category = category_schema.CategoryCreateResponse(**resp.json())
         assert updated_category.id == created_id
         assert updated_category.name != "before"
         assert updated_category.name == "updated :^)"
 
-    async def test_put_category_which_doesnt_exist(self, client, user_fixture):
-        user: user_model.User = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_put_category_which_doesnt_exist(self, client, login_fixture):
+        _, headers = await login_fixture
 
         resp = await client.patch("/categories/1", json={"name": "hoge"}, headers=headers)
         assert resp.status_code == status.HTTP_404_NOT_FOUND
         assert resp.json() == {"detail": "Category<1> Not Found"}
 
+    async def test_put_category_by_invalid_loggedin_user(self, client, login_fixture):
+        _, headers = await login_fixture
+
+        # create category
+        resp = await client.post(f"/categories", json={"name": "***"}, headers=headers)
+        assert resp.status_code == status.HTTP_201_CREATED
+        category_id = resp.json()["id"]
+
+        # create new user
+        user = UserFactory.create_user()
+        await client.post("/users", json={"name": user.name, "password": user.password})
+        new_headers = await create_access_token(client, username=user.name, password=user.password)
+
+        # update category by new user
+        resp = await client.patch(
+            f"/categories/{category_id}", json={"name": "updated :^)"}, headers=new_headers
+        )
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
+        assert resp.json() == {"detail": "Not Authenticated"}
+
 
 @pytest.mark.asyncio
-class TestUpdateCategory:
-    async def test_delete_category(self, client, user_fixture):
-        user: user_model.User = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+class TestDeleteCategory:
+    async def test_delete_category(self, client, login_fixture):
+        _, headers = await login_fixture
 
         # create
         resp = await client.post(f"/categories", json={"name": "new category"}, headers=headers)
@@ -124,9 +137,8 @@ class TestUpdateCategory:
         resp = await client.get("/categories", headers=headers)
         assert len(resp.json()) == 0
 
-    async def test_delete_category_which_has_wrong_id(self, client, user_fixture):
-        user: user_model.User = await user_fixture
-        headers = await create_access_token(client, user.name, user.password)
+    async def test_delete_category_which_has_wrong_id(self, client, login_fixture):
+        _, headers = await login_fixture
 
         # create
         resp = await client.post(f"/categories", json={"name": "new category"}, headers=headers)

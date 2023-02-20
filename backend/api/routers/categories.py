@@ -75,7 +75,7 @@ async def update_category(
     if category.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not Authenticated")
 
-    return await category_crud.update_category(db, category_body, updated=category[0])
+    return await category_crud.update_category(db, category_body, updated=category)
 
 
 @router.delete("/categories/{category_id}", response_model=None, status_code=status.HTTP_200_OK)
