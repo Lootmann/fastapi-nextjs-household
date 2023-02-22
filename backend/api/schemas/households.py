@@ -18,8 +18,8 @@ class HouseholdCreate(HouseholdBase):
 
 class HouseholdCreateResponse(HouseholdCreate):
     id: int
+    user_id: int
 
 
 class Household(HouseholdBase):
     id: int
-    user_id: int
