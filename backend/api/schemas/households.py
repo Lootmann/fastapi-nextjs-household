@@ -23,4 +23,3 @@ class HouseholdCreateResponse(HouseholdCreate):
 
 class Household(HouseholdBase):
     id: int
-    user_id: int
