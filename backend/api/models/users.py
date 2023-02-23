@@ -22,4 +22,4 @@ class User(Base):
     households: Mapped[List["Household"]] = relationship("Household", backref="user")
 
     def __repr__(self) -> str:
-        return f"<User ({self.id}, {self.name})>"
+        return f"<User (id, name) = ({self.id}, {self.name})>"
