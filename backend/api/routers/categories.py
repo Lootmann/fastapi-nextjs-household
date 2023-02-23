@@ -18,11 +18,11 @@ router = APIRouter()
     response_model=List[category_schema.Category],
     status_code=status.HTTP_200_OK,
 )
-async def categories(
+async def get_categories(
     db: AsyncSession = Depends(get_db),
-    _=Depends(auth_api.get_current_active_user),
+    current_user=Depends(auth_api.get_current_active_user),
 ):
-    return await category_crud.get_categories(db)
+    return await category_crud.get_categories(db, current_user.id)
 
 
 @router.get(
@@ -35,7 +35,7 @@ async def get_category(
     db: AsyncSession = Depends(get_db),
     _=Depends(auth_api.get_current_active_user),
 ):
-    category = await category_crud.get_category(db, category_id)
+    category = await category_crud.find_by_id(db, category_id)
     if not category:
         raise HTTPException(status_code=404, detail=f"Category<{category_id}> Not Found")
     return category
@@ -65,7 +65,7 @@ async def update_category(
     db: AsyncSession = Depends(get_db),
     current_user: user_model.User = Depends(auth_api.get_current_active_user),
 ):
-    category = await category_crud.get_category(db, category_id)
+    category = await category_crud.find_by_id(db, category_id)
 
     if not category:
         raise HTTPException(
@@ -84,7 +84,7 @@ async def delete_category(
     db: AsyncSession = Depends(get_db),
     _: user_model.User = Depends(auth_api.get_current_active_user),
 ):
-    category = await category_crud.get_category(db, category_id)
+    category = await category_crud.find_by_id(db, category_id)
 
     if not category:
         raise HTTPException(status_code=404, detail=f"Category<{category_id}> Not Found")

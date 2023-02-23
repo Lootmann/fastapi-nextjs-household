@@ -15,7 +15,6 @@ class CategoryCreate(CategoryBase):
 
 class CategoryCreateResponse(CategoryBase):
     id: int
-    user_id: int
 
 
 class Category(CategoryBase):

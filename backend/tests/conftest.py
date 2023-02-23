@@ -13,6 +13,15 @@ from tests.init_async_client import async_client as client
 async def login_fixture(client) -> Tuple[user_model.User, dict]:
     """login_fixture
     create user and login by the created user
+
+    Args:
+        None {}: 'client' is not args. fixture 'client' is used automatically
+
+    Returns:
+        Tuple {user: user_model.User, headers: dict[str: str]}
+
+        user is a sqlalchemy model instance. see api/models/users.py
+        headers is dict like {"Authorization": "Bearer eyj....."}
     """
     user = user_model.User(name=random_string(), password=random_string())
     resp = await client.post("/users", json={"name": user.name, "password": user.password})

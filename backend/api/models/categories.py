@@ -14,10 +14,10 @@ class Category(Base):
     name: Mapped[str]
 
     # Household
-    households: Mapped[List["Household"]] = relationship("Household", backref="category")
+    households: Mapped[List["Household"]] = relationship(back_populates="category")
 
     # User
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     def __repr__(self) -> str:
-        return f"<Category ({self.id}, {self.name})>"
+        return f"<Category (id, name) = ({self.id}, {self.name})>"

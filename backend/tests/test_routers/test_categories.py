@@ -27,7 +27,7 @@ class TestGetCategory:
         assert len(resp_obj) == 10
 
     async def test_get_category(self, client, login_fixture):
-        user, headers = await login_fixture
+        _, headers = await login_fixture
 
         categories = []
 

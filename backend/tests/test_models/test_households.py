@@ -9,5 +9,5 @@ def test_household_model_repr():
     )
     assert (
         str(household)
-        == f"<Household ({household.id}, {household.amount}, {household.registered_at})>"
+        == f"<Household (id, amount, registered_at) = ({household.id}, {household.amount}, {household.registered_at})>"
     )
