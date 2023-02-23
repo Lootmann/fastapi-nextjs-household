@@ -37,3 +37,22 @@ async def create_category(
     current_user: user_model.User = Depends(auth_api.get_current_active_user),
 ):
     return await household_crud.create_households(db, household_body, current_user.id)
+
+
+@router.get(
+    "/households/{household_id}",
+    response_model=household_schema.Household,
+    status_code=status.HTTP_200_OK,
+)
+async def get_household(
+    household_id: int,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(auth_api.get_current_active_user),
+):
+    household = await household_crud.find_by_id(db, household_id)
+    if not household:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Household: {household_id} not Found",
+        )
+    return household

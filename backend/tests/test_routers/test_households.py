@@ -8,9 +8,9 @@ from tests.init_async_client import async_client as client
 
 
 @pytest.mark.asyncio
-class TestGetHousehold:
+class TestGetAllHouseholds:
     async def test_get_all_households_and_empty(self, client, login_fixture):
-        user, headers = await login_fixture
+        _, headers = await login_fixture
 
         # get all
         resp = await client.get("/households", headers=headers)
@@ -37,6 +37,45 @@ class TestGetHousehold:
         resp = await client.get("/households", headers=headers)
         assert resp.status_code == status.HTTP_200_OK
         assert len(resp.json()) == 10
+
+
+@pytest.mark.asyncio
+class TestGetHousehold:
+    async def test_get_household_by_id(self, client, login_fixture):
+        _, headers = await login_fixture
+
+        # create category
+        resp = await client.post("/categories", json={"name": "hoge"}, headers=headers)
+        category_id = resp.json()["id"]
+
+        # create household
+        resp = await client.post(
+            "/households",
+            json={"amount": 1200, "registered_at": str(datetime.now()), "category_id": category_id},
+            headers=headers,
+        )
+        household_id = resp.json()["id"]
+
+        # get by id
+        resp = await client.get(f"/households/{household_id}", headers=headers)
+        assert resp.status_code == status.HTTP_200_OK
+
+        household = household_schema.Household(**resp.json())
+
+        assert household.amount == 1200
+        assert household.category_id == category_id
+        assert household.id == household_id
+
+    async def test_get_household_by_id_which_doesnt_exist(self, client, login_fixture):
+        _, headers = await login_fixture
+
+        # create category
+        resp = await client.post("/categories", json={"name": "hoge"}, headers=headers)
+        category_id = resp.json()["id"]
+
+        # create household
+        resp = await client.get(f"/households/123", headers=headers)
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.asyncio
