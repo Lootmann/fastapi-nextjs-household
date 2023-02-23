@@ -18,11 +18,11 @@ router = APIRouter()
     response_model=List[category_schema.Category],
     status_code=status.HTTP_200_OK,
 )
-async def categories(
+async def get_categories(
     db: AsyncSession = Depends(get_db),
-    _=Depends(auth_api.get_current_active_user),
+    current_user=Depends(auth_api.get_current_active_user),
 ):
-    return await category_crud.get_categories(db)
+    return await category_crud.get_categories(db, current_user.id)
 
 
 @router.get(

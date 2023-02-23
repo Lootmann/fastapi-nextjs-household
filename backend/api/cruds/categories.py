@@ -22,14 +22,14 @@ async def create_categories(
     return category
 
 
-async def get_categories(db: AsyncSession) -> List[category_model.Category]:
+async def get_categories(db: AsyncSession, user_id: int) -> List[category_model.Category]:
     result: Result = await (
         db.execute(
             select(
                 category_model.Category.id,
                 category_model.Category.name,
                 category_model.Category.user_id,
-            )
+            ).filter_by(user_id=user_id)
         )
     )
     return result.all()  # type: ignore
