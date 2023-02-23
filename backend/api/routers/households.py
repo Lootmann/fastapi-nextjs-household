@@ -77,3 +77,34 @@ async def get_household_by_id(
             detail=f"Household: {household_id} not Found",
         )
     return household
+
+
+@router.patch(
+    "/households/{household_id}",
+    response_model=household_schema.Household,
+    status_code=status.HTTP_200_OK,
+)
+async def update_household(
+    household_id: int,
+    household_body: household_schema.HouseholdUpdate,
+    db=Depends(get_db),
+    _=Depends(auth_api.get_current_active_user),
+):
+    household = await household_crud.find_by_id(db, household_id)
+    if not household:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Household: {household_id} not Found",
+        )
+
+    if household_body.category_id == 0:
+        pass  # doesn't change category
+    else:
+        category = await category_crud.find_by_id(db, household_body.category_id)
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Category: {household_body.category_id} Not Found",
+            )
+
+    return await household_crud.update_household(db, household, household_body)

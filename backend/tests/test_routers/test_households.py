@@ -135,3 +135,63 @@ class TestPostHousehold:
         assert household.amount == 1200
         assert household.registered_at == current_date
         assert household.category_id == category_id
+
+
+@pytest.mark.asyncio
+class TestUpdateHousehold:
+    async def test_update_household(self, client, login_fixture):
+        user, headers = await login_fixture
+
+        # create category
+        resp = await client.post("/categories", json={"name": "hoge"}, headers=headers)
+        category_id = resp.json()["id"]
+
+        # create households
+        current_date = datetime.now()
+        resp = await client.post(
+            "/households",
+            json={"amount": 1200, "registered_at": str(current_date), "category_id": category_id},
+            headers=headers,
+        )
+        assert resp.status_code == status.HTTP_201_CREATED
+
+        household_id = resp.json()["id"]
+
+        # update household
+        update_data = {
+            "amount": 999999,
+            "category_id": category_id,
+        }
+        resp = await client.patch(f"/households/{household_id}", json=update_data, headers=headers)
+        assert resp.status_code == status.HTTP_200_OK
+
+        household = household_schema.Household(**resp.json())
+
+        assert household.amount != 1200
+        assert household.amount == 999999
+        assert household.registered_at != current_date
+
+        # update household with only amount
+        update_data = {
+            "amount": 10,
+        }
+        resp = await client.patch(f"/households/{household_id}", json=update_data, headers=headers)
+        assert resp.status_code == status.HTTP_200_OK
+
+        household = household_schema.Household(**resp.json())
+
+        assert household.amount != 999999
+        assert household.amount == 10
+
+        # update with only category_id
+        update_data = {"category_id": 2}
+        resp = await client.patch(f"/households/{household_id}", json=update_data, headers=headers)
+        assert resp.json() == {"detail": "Category: 2 Not Found"}
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
+
+        resp = await client.post("/categories", json={"name": "new"}, headers=headers)
+        category_id = resp.json()["id"]
+        assert resp.status_code == status.HTTP_201_CREATED
+
+        resp = await client.patch(f"/households/{household_id}", json=update_data, headers=headers)
+        assert resp.status_code == status.HTTP_200_OK
