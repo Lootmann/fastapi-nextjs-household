@@ -22,4 +22,4 @@ class Household(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     def __repr__(self) -> str:
-        return f"<Household ({self.id}, {self.amount}, {self.registered_at})>"
+        return f"<Household (id, amount, registered_at) = ({self.id}, {self.amount}, {self.registered_at})>"

@@ -44,3 +44,15 @@ async def find_by_id(db: AsyncSession, household_id: int) -> household_model.Hou
     result: Result = await db.execute(select(household_model.Household).filter_by(id=household_id))
     household = result.first()
     return household[0] if household else None
+
+
+async def find_by_category(db: AsyncSession, category_id: int) -> List[household_model.Household]:
+    results: Result = await db.execute(
+        select(
+            household_model.Household.id,
+            household_model.Household.amount,
+            household_model.Household.registered_at,
+            household_model.Household.category_id,
+        ).filter_by(category_id=category_id)
+    )
+    return results.all()
