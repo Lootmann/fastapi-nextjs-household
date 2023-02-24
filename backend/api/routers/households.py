@@ -108,3 +108,28 @@ async def update_household(
             )
 
     return await household_crud.update_household(db, household, household_body)
+
+
+@router.delete(
+    "/households/{household_id}",
+    response_model=None,
+    status_code=status.HTTP_200_OK,
+)
+async def delete_household(
+    household_id: int,
+    db=Depends(get_db),
+    current_user: user_model.User = Depends(auth_api.get_current_active_user),
+):
+    household = await household_crud.find_by_id(db, household_id)
+    if not household:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Household: {household_id} Not Found",
+        )
+
+    if household.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Wrong User",
+        )
+    return await household_crud.delete_household(db, household)

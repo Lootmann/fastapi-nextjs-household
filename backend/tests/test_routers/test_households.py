@@ -5,6 +5,7 @@ import pytest
 from fastapi import status
 
 from api.schemas import households as household_schema
+from tests.factories import create_access_token
 from tests.init_async_client import async_client as client
 
 
@@ -195,3 +196,60 @@ class TestUpdateHousehold:
 
         resp = await client.patch(f"/households/{household_id}", json=update_data, headers=headers)
         assert resp.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.asyncio
+class TestDeleteHousehold:
+    async def test_delete_household(self, client, login_fixture):
+        _, headers = await login_fixture
+
+        # create category
+        resp = await client.post("/categories", json={"name": "hoge"}, headers=headers)
+        category_id = resp.json()["id"]
+
+        # create households
+        current_date = datetime.now()
+        resp = await client.post(
+            "/households",
+            json={"amount": 1200, "registered_at": str(current_date), "category_id": category_id},
+            headers=headers,
+        )
+        assert resp.status_code == status.HTTP_201_CREATED
+        household_id = resp.json()["id"]
+
+        # delete household
+        resp = await client.delete(f"/households/{household_id}", headers=headers)
+        assert resp.status_code == status.HTTP_200_OK
+
+    async def test_delete_household_which_is_wrong(self, client, login_fixture):
+        _, headers = await login_fixture
+
+        # delete household
+        resp = await client.delete("/households/1", headers=headers)
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
+        assert resp.json() == {"detail": "Household: 1 Not Found"}
+
+    async def test_delete_household_trying_to_wrong_user(self, client, login_fixture):
+        _, headers = await login_fixture
+
+        resp = await client.post("/categories", json={"name": "hoge"}, headers=headers)
+        category_id = resp.json()["id"]
+
+        # create households
+        current_date = datetime.now()
+        resp = await client.post(
+            "/households",
+            json={"amount": 1200, "registered_at": str(current_date), "category_id": category_id},
+            headers=headers,
+        )
+        assert resp.status_code == status.HTTP_201_CREATED
+        household_id = resp.json()["id"]
+
+        # create new user
+        await client.post("/users", json={"name": "new user", "password": "dorwssap"})
+        new_headers = await create_access_token(client, username="new user", password="dorwssap")
+
+        # try to delete households
+        resp = await client.delete(f"/households/{household_id}", headers=new_headers)
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
+        assert resp.json() == {"detail": "Wrong User"}

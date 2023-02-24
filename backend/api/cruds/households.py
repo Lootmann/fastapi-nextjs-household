@@ -80,3 +80,9 @@ async def update_household(
     await db.refresh(household)
 
     return household
+
+
+async def delete_household(db: AsyncSession, household: household_model.Household) -> None:
+    await db.delete(household)
+    await db.commit()
+    return
