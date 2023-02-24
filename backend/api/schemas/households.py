@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class HouseholdBase(BaseModel):
@@ -21,5 +21,14 @@ class HouseholdCreateResponse(HouseholdCreate):
     user_id: int
 
 
+class HouseholdUpdate(BaseModel):
+    amount: int = Field(0)
+    category_id: int = Field(0)
+
+    class Config:
+        orm_mode = True
+
+
 class Household(HouseholdBase):
     id: int
+    user_id: int

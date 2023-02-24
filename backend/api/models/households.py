@@ -16,7 +16,7 @@ class Household(Base):
 
     # Category
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
-    category: Mapped["Category"] = relationship(back_populates="households")
+    category: Mapped["Category"] = relationship("Category", back_populates="households")
 
     # User
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

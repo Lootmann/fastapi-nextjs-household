@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from sqlalchemy.engine import Result
@@ -16,6 +17,7 @@ async def get_households(db: AsyncSession) -> List[household_model.Household]:
                 household_model.Household.amount,
                 household_model.Household.registered_at,
                 household_model.Household.category_id,
+                household_model.Household.user_id,
             )
         )
     )
@@ -53,6 +55,34 @@ async def find_by_category(db: AsyncSession, category_id: int) -> List[household
             household_model.Household.amount,
             household_model.Household.registered_at,
             household_model.Household.category_id,
+            household_model.Household.user_id,
         ).filter_by(category_id=category_id)
     )
     return results.all()
+
+
+async def update_household(
+    db: AsyncSession,
+    household: household_model.Household,
+    updated_body: household_schema.HouseholdUpdate,
+) -> household_model.Household:
+    if updated_body.amount != 0:
+        household.amount = updated_body.amount
+
+    if updated_body.category_id != 0:
+        household.category_id = updated_body.category_id
+
+    # automatically updated
+    household.registered_at = datetime.now()
+
+    db.add(household)
+    await db.commit()
+    await db.refresh(household)
+
+    return household
+
+
+async def delete_household(db: AsyncSession, household: household_model.Household) -> None:
+    await db.delete(household)
+    await db.commit()
+    return
